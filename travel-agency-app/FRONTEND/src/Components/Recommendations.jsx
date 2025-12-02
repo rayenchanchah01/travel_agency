@@ -9,7 +9,7 @@ import BrazilImg from '../Assets/Brazil.jpg';
  * Recommendations Component
  * Shows 3 featured travel destinations
  */
-function Recommendations() {
+function Recommendations({ onOpenCatalog }) {
   const sectionRef = useRef(null);
   const isVisible = useInView(sectionRef, { once: true, amount: 0.2 });
 
@@ -148,22 +148,18 @@ function Recommendations() {
 
                 {/* Booking Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <a
-                    href={destination.hotelLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex-1 text-center bg-white text-gray-900 font-semibold py-3 rounded-2xl hover:bg-gray-100 transition-colors duration-300"
+                  <button
+                    onClick={() => onOpenCatalog && onOpenCatalog('hotels')}
+                    className="flex-1 text-center bg-white text-gray-900 font-semibold py-3 rounded-2xl hover:bg-gray-100 transition-colors duration-300 cursor-pointer"
                   >
-                    Book Hotel
-                  </a>
-                  <a
-                    href={destination.flightLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex-1 text-center bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold py-3 rounded-2xl hover:shadow-lg hover:shadow-purple-500/40 transition-all duration-300"
+                    Browse Hotels
+                  </button>
+                  <button
+                    onClick={() => onOpenCatalog && onOpenCatalog('flights')}
+                    className="flex-1 text-center bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold py-3 rounded-2xl hover:shadow-lg hover:shadow-purple-500/40 transition-all duration-300 cursor-pointer"
                   >
-                    Book Flight
-                  </a>
+                    Browse Flights
+                  </button>
                 </div>
               </div>
             </motion.div>

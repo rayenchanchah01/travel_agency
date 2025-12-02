@@ -1,9 +1,12 @@
 const axios = require('axios');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-dotenv.config();
+const path = require('path');
 
-const Country = require('../Models/country');
+// Load .env from BACKEND root
+dotenv.config({ path: path.join(__dirname, '../../.env') });
+
+const Country = require('../../Models/country');
 
 const seedCountries = async () => {
   try {

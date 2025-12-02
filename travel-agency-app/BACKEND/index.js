@@ -7,14 +7,17 @@ const hotelRoute = require("./Routes/hotelRoute");
 const userRoute = require("./Routes/userRoute");
 const countryRoute = require("./Routes/countryRoute");
 const cityRoute = require("./Routes/cityRoute");
+const flightRoute = require("./Routes/flightRoute");
 const connectDb = require("./Configuration/connectDB");
 
 const app = express();
 
 // Enable CORS for frontend
 app.use(cors({
-  origin: "http://localhost:5173", // Vite default port
-  credentials: true
+  origin: ["http://localhost:3000", "http://localhost:5173"],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 app.use(express.json());
@@ -24,6 +27,7 @@ app.use("/api", countryRoute);
 app.use("/api", hotelRoute);
 app.use("/api", userRoute);
 app.use("/api", cityRoute);
+app.use("/api", flightRoute);
 
 const port = process.env.PORT;
 

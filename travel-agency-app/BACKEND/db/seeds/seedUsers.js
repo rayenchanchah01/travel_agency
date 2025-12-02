@@ -1,31 +1,13 @@
-const bcrypt = require("bcrypt"); 
-
+const bcrypt = require("bcrypt");
 const axios = require('axios');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const path = require('path');
 
-dotenv.config();
+// Load .env from BACKEND root
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 
-const UserSchema = new mongoose.Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  phone: { type: String },
-  address: {
-    street: { type: String },
-    city: { type: String },
-    country: { type: String },
-    zipCode: { type: String }
-  },
-  dateOfBirth: { type: Date },
-  profilePicture: { type: String },
-  role: { type: String, enum: ['user', 'admin'], default: 'user' },
-  createdAt: { type: Date, default: Date.now },
-  bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Booking' }]
-});
-
-const User = mongoose.model('User', UserSchema);
+const User = require('../../Models/user');
 
 const seedUsers = async () => {
   try {

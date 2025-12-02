@@ -1,9 +1,12 @@
 // seeds/seedHotels.js
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-dotenv.config();
+const path = require('path');
 
-const Hotel = require('../Models/hotel');
+// Load .env from BACKEND root
+dotenv.config({ path: path.join(__dirname, '../../.env') });
+
+const Hotel = require('../../Models/hotel');
 
 const seedHotels = async () => {
   try {
