@@ -12,7 +12,6 @@ const connectDb = require("./Configuration/connectDB");
 
 const app = express();
 
-// Enable CORS for frontend
 app.use(cors({
   origin: ["http://localhost:3000", "http://localhost:5173"],
   credentials: true,
@@ -22,7 +21,6 @@ app.use(cors({
 
 app.use(express.json());
 
-// Routes
 app.use("/api", countryRoute);
 app.use("/api", hotelRoute);
 app.use("/api", userRoute);
@@ -31,7 +29,6 @@ app.use("/api", flightRoute);
 
 const port = process.env.PORT;
 
-// Connect to DB first
 connectDb()
   .then(() => {
     console.log("Connected to MongoDB");

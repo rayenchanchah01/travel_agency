@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   StarIcon,
@@ -8,14 +9,16 @@ import {
 } from '@heroicons/react/24/outline';
 import { hotelService, flightService, countryService, cityService } from '../api';
 
-function TravelCatalog({ onBack, initialView = 'all' }) {
+function TravelCatalog() {
+  const { view } = useParams();
+  const navigate = useNavigate();
   const [hotels, setHotels] = useState([]);
   const [flights, setFlights] = useState([]);
   const [countries, setCountries] = useState([]);
   const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState(initialView);
+  const [activeTab, setActiveTab] = useState(view || 'all');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,7 +30,6 @@ function TravelCatalog({ onBack, initialView = 'all' }) {
           countryService.getAll(),
           cityService.getAll(),
         ]);
-        // Hotels API returns { hotels: [...] }, others return arrays directly
         setHotels(hotelsRes.data.hotels || hotelsRes.data || []);
         setFlights(flightsRes.data || []);
         setCountries(countriesRes.data || []);
@@ -43,7 +45,6 @@ function TravelCatalog({ onBack, initialView = 'all' }) {
     fetchData();
   }, []);
 
-  // Calculate average rating for hotels
   const getAverageRating = (reviews) => {
     if (!reviews || reviews.length === 0) return 0;
     const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
@@ -67,7 +68,7 @@ function TravelCatalog({ onBack, initialView = 'all' }) {
         <div className="text-center">
           <p className="text-xl text-red-400 mb-4">Error: {error}</p>
           <button
-            onClick={onBack}
+            onClick={() => navigate('/')}
             className="rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10 transition-colors"
           >
             Go Back
@@ -80,7 +81,6 @@ function TravelCatalog({ onBack, initialView = 'all' }) {
   return (
     <section className="min-h-screen bg-slate-950 text-white pt-32 pb-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
           <div>
             <p className="text-sm uppercase tracking-[0.3em] text-blue-300">Database Collection</p>
@@ -90,14 +90,13 @@ function TravelCatalog({ onBack, initialView = 'all' }) {
             </p>
           </div>
           <button
-            onClick={onBack}
+            onClick={() => navigate('/')}
             className="self-start rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10 transition-colors"
           >
             Back to Home
           </button>
         </div>
 
-        {/* Tab Navigation */}
         <div className="flex flex-wrap gap-2 mb-8">
           {['all', 'hotels', 'flights', 'countries', 'cities'].map((tab) => (
             <button
@@ -114,7 +113,6 @@ function TravelCatalog({ onBack, initialView = 'all' }) {
           ))}
         </div>
 
-        {/* Hotels Section */}
         {(activeTab === 'all' || activeTab === 'hotels') && (
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -159,7 +157,6 @@ function TravelCatalog({ onBack, initialView = 'all' }) {
           </motion.div>
         )}
 
-        {/* Flights Section */}
         {(activeTab === 'all' || activeTab === 'flights') && (
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -206,7 +203,6 @@ function TravelCatalog({ onBack, initialView = 'all' }) {
           </motion.div>
         )}
 
-        {/* Countries Section */}
         {(activeTab === 'all' || activeTab === 'countries') && (
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -242,7 +238,6 @@ function TravelCatalog({ onBack, initialView = 'all' }) {
           </motion.div>
         )}
 
-        {/* Cities Section */}
         {(activeTab === 'all' || activeTab === 'cities') && (
           <motion.div
             initial={{ opacity: 0, y: 30 }}

@@ -1,19 +1,16 @@
 import React, { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import { StarIcon } from '@heroicons/react/24/solid';
 import CaliforniaImg from '../Assets/california.jpg';
 import HongKongImg from '../Assets/hong kong.jpg';
 import BrazilImg from '../Assets/Brazil.jpg';
 
-/**
- * Recommendations Component
- * Shows 3 featured travel destinations
- */
-function Recommendations({ onOpenCatalog }) {
+function Recommendations() {
+  const navigate = useNavigate();
   const sectionRef = useRef(null);
   const isVisible = useInView(sectionRef, { once: true, amount: 0.2 });
 
-  // Destination data
   const destinations = [
     {
       name: 'California Coast Escape',
@@ -56,14 +53,12 @@ function Recommendations({ onOpenCatalog }) {
       ref={sectionRef}
       className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
     >
-      {/* Background decoration */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500 rounded-full blur-3xl" />
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
@@ -79,7 +74,6 @@ function Recommendations({ onOpenCatalog }) {
           </p>
         </motion.div>
 
-        {/* Destination Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {destinations.map((destination, index) => (
             <motion.div
@@ -89,7 +83,6 @@ function Recommendations({ onOpenCatalog }) {
               transition={{ duration: 0.6, delay: index * 0.2 }}
               className="rounded-3xl overflow-hidden border border-white/15 bg-white/5 backdrop-blur-xl shadow-2xl"
             >
-              {/* Image */}
               <div className="relative h-56">
                 <img
                   src={destination.image}
@@ -97,14 +90,10 @@ function Recommendations({ onOpenCatalog }) {
                   className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/70" />
-                
-                {/* Rating badge */}
                 <div className="absolute top-4 right-4 flex items-center gap-2 rounded-full bg-black/40 px-3 py-1 text-yellow-300">
                   <StarIcon className="w-4 h-4" />
                   <span className="text-sm font-semibold">{destination.rating.toFixed(1)}</span>
                 </div>
-                
-                {/* Location info */}
                 <div className="absolute bottom-4 left-4 text-left">
                   <p className="text-sm uppercase tracking-widest text-gray-200">Destination</p>
                   <h4 className="text-2xl font-bold text-white">{destination.name}</h4>
@@ -112,11 +101,9 @@ function Recommendations({ onOpenCatalog }) {
                 </div>
               </div>
 
-              {/* Content */}
               <div className="p-8 space-y-6">
                 <p className="text-gray-200">{destination.description}</p>
 
-                {/* Hotels */}
                 <div>
                   <p className="text-sm uppercase tracking-wide text-blue-200 mb-2">
                     Signature Hotels
@@ -131,7 +118,6 @@ function Recommendations({ onOpenCatalog }) {
                   </ul>
                 </div>
 
-                {/* Activities */}
                 <div>
                   <p className="text-sm uppercase tracking-wide text-blue-200 mb-2">
                     Must-Do Activities
@@ -146,16 +132,15 @@ function Recommendations({ onOpenCatalog }) {
                   </ul>
                 </div>
 
-                {/* Booking Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
-                    onClick={() => onOpenCatalog && onOpenCatalog('hotels')}
+                    onClick={() => navigate('/catalog/hotels')}
                     className="flex-1 text-center bg-white text-gray-900 font-semibold py-3 rounded-2xl hover:bg-gray-100 transition-colors duration-300 cursor-pointer"
                   >
                     Browse Hotels
                   </button>
                   <button
-                    onClick={() => onOpenCatalog && onOpenCatalog('flights')}
+                    onClick={() => navigate('/catalog/flights')}
                     className="flex-1 text-center bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold py-3 rounded-2xl hover:shadow-lg hover:shadow-purple-500/40 transition-all duration-300 cursor-pointer"
                   >
                     Browse Flights

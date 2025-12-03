@@ -1,17 +1,24 @@
 const User = require("../Models/user");
+const jwt = require("jsonwebtoken");
+
+const generateToken = (user) => {
+  return jwt.sign(
+    { id: user._id, email: user.email, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+};
 
 // Register new user
 const registerUser = async (req, res) => {
   try {
     const { firstName, lastName, email, password, phone } = req.body;
 
-    // Check if email already exists
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
       return res.status(400).json({ msg: "Email already exists" });
     }
 
-    // Create new user
     const newUser = new User({
       firstName: firstName,
       lastName: lastName,
@@ -21,16 +28,19 @@ const registerUser = async (req, res) => {
       role: 'user'
     });
 
-    // Save user (password will be hashed automatically)
     await newUser.save();
+
+    const token = generateToken(newUser);
 
     res.status(201).json({
       msg: "User registered successfully!",
+      token: token,
       user: {
         id: newUser._id,
         firstName: newUser.firstName,
         lastName: newUser.lastName,
-        email: newUser.email
+        email: newUser.email,
+        role: newUser.role
       }
     });
   } catch (error) {
@@ -43,21 +53,21 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user by email
     const user = await User.findOne({ email: email });
     if (!user) {
       return res.status(401).json({ msg: "Email or password is wrong" });
     }
 
-    // Check if password is correct
     const isCorrect = await user.checkPassword(password);
     if (!isCorrect) {
       return res.status(401).json({ msg: "Email or password is wrong" });
     }
 
-    // Login successful
+    const token = generateToken(user);
+
     res.status(200).json({
       msg: "Login successful!",
+      token: token,
       user: {
         id: user._id,
         firstName: user.firstName,
@@ -71,21 +81,29 @@ const loginUser = async (req, res) => {
   }
 };
 
-// Get all users
+// Get current user (from token)
+const getCurrentUser = async (req, res) => {
+  try {
+    res.status(200).json({ user: req.user });
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
+
+// Get all users (admin only)
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select('-password'); // Exclude password
+    const users = await User.find().select('-password');
     res.status(200).json({ users: users });
   } catch (error) {
     res.status(500).json({ msg: error.message });
   }
 };
 
-
 // Get one user by ID
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password'); // Exclude password
+    const user = await User.findById(req.params.id).select('-password');
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
@@ -95,5 +113,17 @@ const getUserById = async (req, res) => {
   }
 };
 
+// Delete user (admin only)
+const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    res.status(200).json({ msg: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
 
-module.exports = { registerUser, loginUser, getAllUsers, getUserById };
+module.exports = { registerUser, loginUser, getCurrentUser, getAllUsers, getUserById, deleteUser };

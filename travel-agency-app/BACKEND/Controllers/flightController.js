@@ -1,6 +1,5 @@
 const Flight = require('../Models/flight');
 
-// Get all flights
 const getFlights = async (req, res) => {
   try {
     const { origin, destination } = req.query;
@@ -20,7 +19,6 @@ const getFlights = async (req, res) => {
   }
 };
 
-// Get flight by ID
 const getFlightById = async (req, res) => {
   try {
     const flight = await Flight.findById(req.params.id);
@@ -33,7 +31,6 @@ const getFlightById = async (req, res) => {
   }
 };
 
-// Create a new flight
 const createFlight = async (req, res) => {
   try {
     const flight = new Flight(req.body);
@@ -45,4 +42,3 @@ const createFlight = async (req, res) => {
 };
 
 module.exports = { getFlights, getFlightById, createFlight };
-

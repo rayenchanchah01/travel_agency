@@ -63,7 +63,7 @@ function Home() {
         </p>
 
         {/* Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <button
             onClick={() => scrollToSection('recommendations')}
             className="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 px-8 rounded-full text-lg hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 w-full sm:w-auto"
@@ -77,18 +77,20 @@ function Home() {
             Learn More
           </button>
         </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2">
-          <button
-            onClick={() => scrollToSection('about')}
-            className="text-white flex flex-col items-center gap-2 hover:text-blue-400 transition-colors duration-300"
-          >
-            <span className="text-sm font-semibold">Scroll Down</span>
-            <ChevronDownIcon className="w-6 h-6" />
-          </button>
-        </div>
       </motion.div>
+
+      {/* Scroll Indicator - Outside content div, positioned at bottom of section */}
+      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-30">
+        <motion.button
+          onClick={() => scrollToSection('about')}
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="flex flex-col items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 hover:bg-white/30 transition-colors duration-300"
+        >
+          <span className="text-sm font-bold text-white drop-shadow-lg">Scroll Down</span>
+          <ChevronDownIcon className="w-6 h-6 text-white drop-shadow-lg" />
+        </motion.button>
+      </div>
     </section>
   );
 }
