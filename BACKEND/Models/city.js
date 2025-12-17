@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 
-const CitySchema = new mongoose.Schema({
+  const CitySchema = new mongoose.Schema({
   name: { type: String, required: true },
   country: { type: String, required: true },
   center: {
-    lat: { type: Number },
-    lng: { type: Number }
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true }
   },
-  image: { type: String },
+  image: { type: String, required: true },
   description: { type: String }
 });
 
