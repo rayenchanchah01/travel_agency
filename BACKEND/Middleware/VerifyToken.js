@@ -1,6 +1,11 @@
 const jwt = require('jsonwebtoken');
 const User = require('../Models/user');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret';
+if (!process.env.JWT_SECRET) {
+  console.warn("JWT_SECRET not set. Using development fallback 'dev_jwt_secret'. Do NOT use this in production.");
+}
+
 const verifyToken = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -10,7 +15,7 @@ const verifyToken = async (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
 
     // Make sure the decoded object has the correct field
     const userId = decoded.id || decoded.userId || decoded._id;

@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
-// Load environment variables
+// load variables
 dotenv.config();
 
 const app = express();
@@ -21,23 +21,21 @@ const hotelRoute = require('./Routes/hotelRoute');
 const userRoute = require('./Routes/userRoute');
 
 // Mount routes
-app.use('/api', cityRoute);      // /api/cities, /api/cities/:id, /api/cities (POST)
-app.use('/api', countryRoute);   // /api/countries
-app.use('/api', flightRoute);    // /api/flights, /api/flights/:id, /api/flights (POST)
-app.use('/api', hotelRoute);     // /api/hotels, /api/hotels/:id/reserve, /api/hotels/:id/reviews
-app.use('/api', userRoute);      // /api/register, /api/login, /api/me, /api/users...
-
-// Default route
-app.get('/', (req, res) => {
-  res.send('API is running...');
-});
+app.use('/api', cityRoute);     
+app.use('/api', countryRoute); 
+app.use('/api', flightRoute);   
+app.use('/api', hotelRoute);    
+app.use('/api', userRoute);     
 
 // Connect to MongoDB and start server
 const PORT = process.env.PORT || 5000;
+const connectDb = require('./Configuration/connectDB');
 
-mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+connectDb()
   .then(() => {
-    console.log('✅ MongoDB connected to', mongoose.connection.name);
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   })
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+  .catch(err => {
+    console.error('Unable to start server due to DB connection error:', err);
+    process.exit(1);
+  });

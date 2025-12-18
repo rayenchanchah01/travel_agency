@@ -2,13 +2,7 @@ const City = require('../Models/city');
 
 const getCities = async (req, res) => {
   try {
-    const { name, country } = req.query;
-
-    const filter = {};
-    if (name) filter.name = { $regex: name, $options: 'i' };
-    if (country) filter.country = { $regex: country, $options: 'i' };
-
-    const cities = await City.find(filter);
+    const cities = await City.find();
     if (cities && cities.length > 0) {
       return res.status(200).json({ cities });
     }

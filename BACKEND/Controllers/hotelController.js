@@ -1,6 +1,6 @@
 const Hotel = require("../Models/hotel");
 
-// Helper: Check if hotel is available for given dates
+// Check if hotel is available for given dates
 function isHotelAvailable(hotel, checkIn, checkOut) {
   if (!hotel.reservations || hotel.reservations.length === 0) return true;
 
@@ -14,9 +14,6 @@ function isHotelAvailable(hotel, checkIn, checkOut) {
   });
 }
 
-// @desc    Get hotels with filters and availability
-// @route   GET /api/hotels
-// @access  Public
 const getHotels = async (req, res) => {
   try {
     const { stars, city, country, minPrice, maxPrice, search, checkIn, checkOut, days } = req.query;
@@ -67,8 +64,7 @@ const getHotels = async (req, res) => {
       hotels = hotels.filter(hotel => isHotelAvailable(hotel, finalCheckIn, finalCheckOut));
     }
 
-    const results = hotels.map(hotel => ({
-      ...hotel.toObject(),
+    const results = hotels.map(hotel => ({...hotel.toObject(),
       nights,
       finalCheckIn,
       finalCheckOut,
@@ -88,28 +84,6 @@ const getHotels = async (req, res) => {
   }
 };
 
-// @desc    Create a new hotel
-// @route   POST /api/hotels
-// @access  Public or Admin
-const createHotel = async (req, res) => {
-  try {
-    const hotelData = req.body;
-    if (!hotelData || !hotelData.name || !hotelData.city) {
-      return res.status(400).json({ message: "Name and city are required." });
-    }
-
-    const newHotel = new Hotel(hotelData);
-    await newHotel.save();
-    res.status(201).json({ message: "Hotel created successfully.", hotel: newHotel });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error", error: error.message });
-  }
-};
-
-// @desc    Reserve a hotel
-// @route   POST /api/hotels/:id/reserve
-// @access  Public
 const reserveHotel = async (req, res) => {
   try {
     const { id } = req.params;
@@ -135,9 +109,6 @@ const reserveHotel = async (req, res) => {
   }
 };
 
-// @desc    Add a review to a hotel
-// @route   POST /api/hotels/:id/review
-// @access  Public
 const addReview = async (req, res) => {
   try {
     const { id } = req.params;
@@ -163,7 +134,6 @@ const addReview = async (req, res) => {
 
 module.exports = {
   getHotels,
-  createHotel,
   reserveHotel,
   addReview
 };

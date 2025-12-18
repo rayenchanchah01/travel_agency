@@ -5,7 +5,7 @@ const isAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader) return next(); // no token, proceed to signup/login
+    if (!authHeader) return next(); 
 
     if (authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
@@ -19,7 +19,7 @@ const isAuth = async (req, res, next) => {
     }
     next();
   } catch (error) {
-    next(); // token invalid, allow login/signup
+    next(); 
   }
 };
 

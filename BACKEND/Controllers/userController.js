@@ -81,7 +81,7 @@ const registerUser = async (req, res) => {
     });
   } catch (error) {
     console.error("Registration error:", error);
-    // Handle duplicate key errors (e.g., email or userId already exists)
+    // Check duplicates
     if (error && error.code === 11000) {
       const key = Object.keys(error.keyValue || {})[0] || 'field';
       return res.status(400).json({ message: `${key} already exists` });
@@ -143,9 +143,7 @@ const loginUser = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user._id, role: user.role },
-      JWT_SECRET,
-      { expiresIn: "7d" }
+      { id: user._id, role: user.role },JWT_SECRET,{ expiresIn: "7d" }
     );
 
     const userResponse = user.toObject();
@@ -163,7 +161,7 @@ const loginUser = async (req, res) => {
 };
 
 const getCurrentUser = async (req, res) => {
-  // verifyToken attaches the authenticated user to req.user (without password)
+  // verifyToken attaches the authenticated user to req.user 
   if (!req.user) {
     return res.status(401).json({ message: "Not authenticated" });
   }

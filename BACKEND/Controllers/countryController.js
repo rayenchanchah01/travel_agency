@@ -2,14 +2,7 @@ const Country = require('../Models/country');
 
 const getCountries = async (req, res) => {
   try {
-    const { name } = req.query;
-
-    const filter = {};
-    if (name) {
-      filter.name = { $regex: name, $options: 'i' }; // case-insensitive search
-    }
-
-    const countries = await Country.find(filter);
+    const countries = await Country.find();
     if (countries && countries.length > 0) {
       return res.status(200).json({ countries });
     }

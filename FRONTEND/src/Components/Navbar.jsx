@@ -17,6 +17,27 @@ function Navbar() {
     checkUserLoggedIn();
   }, [location]); // Re-check when location changes
 
+  // Listen for auth changes (login/signup/logout) so Navbar updates without reload
+  useEffect(() => {
+    const handler = (e) => {
+      const userData = e?.detail ?? null;
+      if (userData) {
+        setUser(userData);
+      } else {
+        // if null detail, try to read from localStorage
+        try {
+          const stored = localStorage.getItem('user');
+          setUser(stored ? JSON.parse(stored) : null);
+        } catch (err) {
+          setUser(null);
+        }
+      }
+    };
+
+    window.addEventListener('auth:changed', handler);
+    return () => window.removeEventListener('auth:changed', handler);
+  }, []);
+
   const checkUserLoggedIn = () => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
@@ -68,6 +89,8 @@ function Navbar() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
+    // notify other components
+    window.dispatchEvent(new CustomEvent('auth:changed', { detail: null }));
     setIsMobileMenuOpen(false);
     navigate('/');
   };
@@ -99,6 +122,24 @@ function Navbar() {
                 </Link>
               </li>
             ))}
+
+            {/* Admin Dashboard link (desktop) */}
+            {user?.role === 'admin' && (
+              <li>
+                <Link
+                  to="/admin"
+                  className={`px-4 py-2 rounded-lg font-semibold transition-colors duration-300 ${
+                    isActive('/admin')
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
+                      : isHomePage && !hasScrolled
+                      ? 'text-white hover:bg-white/10'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  Dashboard
+                </Link>
+              </li>
+            )}
           </ul>
 
           {/* Auth Buttons / User Info */}
@@ -175,6 +216,23 @@ function Navbar() {
                 </Link>
               </li>
             ))}
+
+            {/* Dashboard (mobile) */}
+            {user?.role === 'admin' && (
+              <li>
+                <Link
+                  to="/admin"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`block w-full text-left px-4 py-3 rounded-lg font-semibold transition-colors duration-300 ${
+                    isActive('/admin')
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  Dashboard
+                </Link>
+              </li>
+            )}
             
             {/* Mobile Auth Links */}
             <li className="pt-4">

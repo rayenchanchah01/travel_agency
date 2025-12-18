@@ -30,11 +30,9 @@ function SignIn() {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      // Redirect to home page
+      // Notify other components (Navbar) about auth change and navigate home
+      window.dispatchEvent(new CustomEvent('auth:changed', { detail: res.data.user }));
       navigate("/");
-      
-      // Force page reload to update navbar state
-      window.location.reload();
       
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Login failed");

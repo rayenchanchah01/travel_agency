@@ -60,7 +60,18 @@ function SignUp() {
       if (formData.dateOfBirth.trim() !== "") payload.dateOfBirth = formData.dateOfBirth;
       if (formData.profilePicture.trim() !== "") payload.profilePicture = formData.profilePicture;
 
-      await axios.post("http://localhost:5000/api/auth/signup", payload);
+      const res = await axios.post("http://localhost:5000/api/auth/signup", payload);
+
+      // Store token and user data in localStorage so Navbar updates
+      if (res?.data?.token) {
+        localStorage.setItem("token", res.data.token);
+      }
+      if (res?.data?.user) {
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+      }
+
+      // Notify Navbar about auth change and navigate home
+      window.dispatchEvent(new CustomEvent('auth:changed', { detail: res.data.user }));
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.msg || err.message || "Signup failed");
