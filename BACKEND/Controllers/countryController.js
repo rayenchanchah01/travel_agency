@@ -47,8 +47,8 @@ const createCountry = async (req, res) => {
   try {
     const { name, isoCode, center, image } = req.body;
 
-    if (!name || !isoCode) {
-      return res.status(400).json({ message: 'Name and isoCode are required' });
+    if (!name || !isoCode || !center || !image) {
+      return res.status(400).json({ message: 'All fields are required' });
     }
 
     const newCountry = new Country({
@@ -68,6 +68,7 @@ const createCountry = async (req, res) => {
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
+
 
 module.exports = {
   getCountries,

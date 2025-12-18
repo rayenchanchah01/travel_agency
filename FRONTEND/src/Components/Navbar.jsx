@@ -1,19 +1,40 @@
 import { useState, useEffect } from 'react';
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Bars3Icon, XMarkIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
-import AuthModal from './AuthModal';
-import { useAuth } from '../context/AuthContext';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Bars3Icon, XMarkIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 
 function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
-  const [authModalType, setAuthModalType] = useState(null);
+  const [user, setUser] = useState(null);
   const location = useLocation();
-  const { user, logout, isAdmin } = useAuth();
+  const navigate = useNavigate();
 
-  // Check if we're on the home page
   const isHomePage = location.pathname === '/';
+
+  // Check if user is logged in on component mount and route changes
+  useEffect(() => {
+    checkUserLoggedIn();
+  }, [location]); // Re-check when location changes
+
+  const checkUserLoggedIn = () => {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    
+    if (token && userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        // Clear invalid data
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setUser(null);
+      }
+    } else {
+      setUser(null);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,7 +46,6 @@ function Navbar() {
 
   const menuItems = [
     { path: '/', label: 'Home' },
-    { path: '/about', label: 'About' },
     { path: '/countries', label: 'Countries' },
     { path: '/recommendations', label: 'Recommendations' },
     { path: '/contact', label: 'Contact' },
@@ -33,33 +53,31 @@ function Navbar() {
 
   const isActive = (path) => location.pathname === path;
 
-  // Determine navbar background based on page and scroll state
   const getNavbarBg = () => {
-    if (isHomePage && !hasScrolled) {
-      return 'bg-transparent';
-    }
+    if (isHomePage && !hasScrolled) return 'bg-transparent';
     return 'bg-white/95 backdrop-blur-md shadow-lg';
   };
 
-  // Determine text color based on page and scroll state
   const getTextColor = (isActiveLink = false) => {
-    if (isActiveLink) return 'text-white'; // Active links always white with gradient bg
+    if (isActiveLink) return 'text-white';
     if (isHomePage && !hasScrolled) return 'text-white';
     return 'text-gray-700';
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setIsMobileMenuOpen(false);
+    navigate('/');
+  };
+
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${getNavbarBg()}`}
-    >
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${getNavbarBg()}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <Link to="/" className="flex items-center cursor-pointer">
-            <h1
-              className={`text-2xl sm:text-3xl font-bold transition-colors duration-300 ${
-                getTextColor()
-              }`}
-            >
+            <h1 className={`text-2xl sm:text-3xl font-bold transition-colors duration-300 ${getTextColor()}`}>
               Enjoy Travel
             </h1>
           </Link>
@@ -73,8 +91,8 @@ function Navbar() {
                     isActive(item.path)
                       ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
                       : isHomePage && !hasScrolled
-                        ? 'text-white hover:bg-white/10'
-                        : 'text-gray-700 hover:bg-gray-100'
+                      ? 'text-white hover:bg-white/10'
+                      : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
                   {item.label}
@@ -83,53 +101,45 @@ function Navbar() {
             ))}
           </ul>
 
-          {/* Desktop Auth Buttons */}
+          {/* Auth Buttons / User Info */}
           <div className="hidden md:flex items-center gap-4">
             {user ? (
-              <>
-                {isAdmin() && (
-                  <Link
-                    to="/admin"
-                    className={`flex items-center gap-1 px-4 py-2 rounded-lg font-semibold transition-colors duration-300 ${
-                      isActive('/admin')
-                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                        : isHomePage && !hasScrolled
-                          ? 'text-purple-300 hover:bg-white/10'
-                          : 'text-purple-600 hover:bg-purple-50'
-                    }`}
-                  >
-                    <ShieldCheckIcon className="w-5 h-5" />
-                    Dashboard
-                  </Link>
-                )}
-                <span className={`font-medium ${getTextColor()}`}>
-                  Hi, {user.firstName}
-                </span>
+              <div className="flex items-center gap-4">
+                {/* User Info */}
+                <div className="flex items-center gap-2">
+                  <UserCircleIcon className={`w-6 h-6 ${isHomePage && !hasScrolled ? 'text-white' : 'text-gray-700'}`} />
+                  <span className={`font-semibold ${isHomePage && !hasScrolled ? 'text-white' : 'text-gray-700'}`}>
+                    {user.name || user.email?.split('@')[0]}
+                  </span>
+                </div>
+                
+                {/* Logout Button */}
                 <button
-                  onClick={logout}
-                  className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-6 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
+                  onClick={handleLogout}
+                  className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
                 >
-                  Logout
+                  Log Out
                 </button>
-              </>
+              </div>
             ) : (
               <>
-                <button
-                  onClick={() => setAuthModalType('signin')}
+                {/* Sign In Button */}
+                <Link
+                  to="/signin"
                   className={`px-4 py-2 rounded-lg font-semibold transition-colors duration-300 ${
-                    isHomePage && !hasScrolled
-                      ? 'text-white hover:bg-white/10'
-                      : 'text-gray-700 hover:bg-gray-100'
+                    isHomePage && !hasScrolled ? 'text-white hover:bg-white/10' : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
                   Sign In
-                </button>
-                <button
-                  onClick={() => setAuthModalType('signup')}
+                </Link>
+
+                {/* Sign Up Button */}
+                <Link
+                  to="/signup"
                   className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
                 >
                   Sign Up
-                </button>
+                </Link>
               </>
             )}
           </div>
@@ -138,20 +148,15 @@ function Navbar() {
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className={`md:hidden p-2 rounded-lg transition-colors duration-300 ${
-              isHomePage && !hasScrolled
-                ? 'text-white hover:bg-white/10'
-                : 'text-gray-700 hover:bg-gray-100'
+              isHomePage && !hasScrolled ? 'text-white hover:bg-white/10' : 'text-gray-700 hover:bg-gray-100'
             }`}
           >
-            {isMobileMenuOpen ? (
-              <XMarkIcon className="w-6 h-6" />
-            ) : (
-              <Bars3Icon className="w-6 h-6" />
-            )}
+            {isMobileMenuOpen ? <XMarkIcon className="w-6 h-6" /> : <Bars3Icon className="w-6 h-6" />}
           </button>
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200">
           <ul className="px-4 py-4 space-y-2">
@@ -170,59 +175,48 @@ function Navbar() {
                 </Link>
               </li>
             ))}
-            {user ? (
-              <li className="pt-4 space-y-2">
-                {isAdmin() && (
-                  <Link
-                    to="/admin"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-2 w-full px-4 py-3 rounded-lg text-purple-600 font-semibold hover:bg-purple-50 transition-colors duration-300"
+            
+            {/* Mobile Auth Links */}
+            <li className="pt-4">
+              {user ? (
+                <div className="flex flex-col gap-2">
+                  {/* User Info */}
+                  <div className="flex items-center gap-2 px-4 py-3">
+                    <UserCircleIcon className="w-5 h-5 text-gray-700" />
+                    <span className="text-gray-700 font-semibold">
+                      {user.name || user.email?.split('@')[0]}
+                    </span>
+                  </div>
+                  
+                  {/* Logout Button */}
+                  <button
+                    onClick={handleLogout}
+                    className="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-red-500 to-pink-500 text-white font-semibold hover:shadow-lg transition-all duration-300"
                   >
-                    <ShieldCheckIcon className="w-5 h-5" />
-                    Dashboard
+                    Log Out
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <Link
+                    to="/signin"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full px-4 py-3 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition-colors duration-300"
+                  >
+                    Sign In
                   </Link>
-                )}
-                <div className="px-4 py-2 text-gray-600">Hi, {user.firstName}</div>
-                <button
-                  onClick={() => {
-                    logout();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
-                >
-                  Logout
-                </button>
-              </li>
-            ) : (
-              <li className="pt-4 space-y-2">
-                <button
-                  onClick={() => {
-                    setAuthModalType('signin');
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-3 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition-colors duration-300"
-                >
-                  Sign In
-                </button>
-                <button
-                  onClick={() => {
-                    setAuthModalType('signup');
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
-                >
-                  Sign Up
-                </button>
-              </li>
-            )}
+                  <Link
+                    to="/signup"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold hover:shadow-lg transition-all duration-300"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
+            </li>
           </ul>
         </div>
-      )}
-      {authModalType && (
-        <AuthModal
-          type={authModalType}
-          onClose={() => setAuthModalType(null)}
-        />
       )}
     </nav>
   );

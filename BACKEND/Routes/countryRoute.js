@@ -1,23 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const Country = require('../Models/country');
+const { getCountries, getCountryById, createCountry } = require('../Controllers/countryController');
 
-// GET all countries (with optional filtering by name)
-router.get('/countries', async (req, res) => {
-  try {
-    const { name } = req.query; // query parameter for filtering
-    let filter = {};
+// GET all countries (optionally filtered by name)
+router.get('/countries', getCountries);
 
-    if (name) {
-      filter.name = { $regex: name, $options: 'i' }; // case-insensitive match
-    }
+// GET a single country by ID
+router.get('/countries/:id', getCountryById);
 
-    const countries = await Country.find(filter);
-    res.status(200).json(countries);
-  } catch (error) {
-    res.status(500).json({ msg: error.message });
-  }
-});
+// POST create a new country
+router.post('/countries', createCountry);
 
 module.exports = router;
-
