@@ -23,16 +23,17 @@ function AdminDashboard() {
         setLoading(true);
 
         // 1️⃣ Get current logged-in user
-        const meRes = await axios.get(`${API_URL}/auth/me`, {
+        const meRes = await axios.get(`${API_URL}/me`, {
           headers: getAuthHeaders(),
         });
-        setCurrentUser(meRes.data.user);
+        // backend returns user object directly
+        setCurrentUser(meRes.data);
 
-        // 2️⃣ Get all users
+        // 2️⃣ Get all users (returns { users: [...] })
         const usersRes = await axios.get(`${API_URL}/users`, {
           headers: getAuthHeaders(),
         });
-        setUsers(usersRes.data.users);
+        setUsers(usersRes.data?.users ?? usersRes.data ?? []);
       } catch (err) {
         setError(err.response?.data?.msg || err.response?.data?.message || "Failed to fetch users");
       } finally {
@@ -119,12 +120,14 @@ function AdminDashboard() {
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
                           <span className="text-white font-semibold">
-                            {u.firstName?.[0]}
-                            {u.lastName?.[0]}
+                            {(() => {
+                              const parts = (u.name || "").split(" ").filter(Boolean);
+                              return (parts[0]?.[0] || "") + (parts[1]?.[0] || "");
+                            })()}
                           </span>
                         </div>
                         <span className="text-white font-medium">
-                          {u.firstName} {u.lastName}
+                          {u.name}
                         </span>
                       </div>
                     </td>

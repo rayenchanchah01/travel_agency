@@ -19,6 +19,7 @@ function TravelCatalog() {
   const [countries, setCountries] = useState([]);
   const [cities, setCities] = useState([]);
 
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(view || "all");
@@ -36,10 +37,12 @@ function TravelCatalog() {
             axios.get("http://localhost:5000/api/cities"),
           ]);
 
-        setHotels(hotelsRes.data.hotels || hotelsRes.data || []);
-        setFlights(flightsRes.data || []);
-        setCountries(countriesRes.data || []);
-        setCities(citiesRes.data || []);
+        setHotels(hotelsRes.data?.hotels ?? hotelsRes.data ?? []);
+        // backend now returns { flights: [...] } for consistency (but we support old shapes)
+        setFlights(flightsRes.data?.flights ?? flightsRes.data ?? []);
+        // backend returns { countries: [...] } and { cities: [...] }
+        setCountries(countriesRes.data?.countries ?? countriesRes.data ?? []);
+        setCities(citiesRes.data?.cities ?? citiesRes.data ?? []);
       } catch (err) {
         setError(err.message || "Failed to load data");
       } finally {
@@ -161,7 +164,11 @@ function TravelCatalog() {
 
                   <p className="text-sm text-gray-400">
                     Departure:{" "}
-                    {new Date(f.departureTime).toLocaleString()}
+                    {(() => {
+                      const d = f.departure ?? f.departureTime ?? f?.departure?.$date ?? null;
+                      const date = d ? new Date(d) : null;
+                      return date ? date.toLocaleString() : "N/A";
+                    })()}
                   </p>
 
                   {/* PRICE OBJECT FIX */}
