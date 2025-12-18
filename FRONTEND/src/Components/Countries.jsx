@@ -27,7 +27,7 @@ function Countries() {
       .get('http://localhost:5000/api/countries')
       .then((res) => {
         console.log('Countries response:', res.data);
-        setCountries(res.data || [])
+        setCountries(res.data?.countries ?? res.data ?? [])
       })
       .catch((err) => {
         console.error('Error fetching countries:', err);
